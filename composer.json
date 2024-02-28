@@ -1,0 +1,7 @@
+{
+    "name": "elevinskii/module-media-storage",
+    "description": "Set of commands to operate your Magento2 catalog media effectively",
+    "require": {
+        "php": "~8.1.0||~8.2.0"
+    }
+}
