@@ -3,13 +3,36 @@ declare(strict_types=1);
 
 namespace Elevinskii\MediaStorage\Console\Command;
 
+use Elevinskii\MediaStorage\Model\Gallery\ImageBuilder;
+use Elevinskii\MediaStorage\Model\Gallery\OriginFinder;
+use Elevinskii\MediaStorage\Model\GalleryImage as Image;
+use Elevinskii\MediaStorage\Model\ResourceModel\GalleryImage as ImageResource;
+use Elevinskii\MediaStorage\Model\ResourceModel\GalleryImage\CollectionFactory as ImageCollectionFactory;
 use Magento\Framework\Console\Cli;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class RemoveMediaDuplicates extends Command
 {
+    /**
+     * @param OriginFinder $originFinder
+     * @param ImageBuilder $imageBuilder
+     * @param ImageResource $imageResource
+     * @param LoggerInterface $logger
+     * @param ImageCollectionFactory $imageCollectionFactory
+     */
+    public function __construct(
+        private readonly OriginFinder $originFinder,
+        private readonly ImageBuilder $imageBuilder,
+        private readonly ImageResource $imageResource,
+        private readonly LoggerInterface $logger,
+        private readonly ImageCollectionFactory $imageCollectionFactory
+    ) {
+        parent::__construct();
+    }
+
     /**
      * Configuration of the command
      *
@@ -33,6 +56,31 @@ class RemoveMediaDuplicates extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $imageCollection = $this->imageCollectionFactory->create()
+            ->addFilterByDuplicates();
+
+        $removedImages = [];
+
+        /** @var Image $image */
+        foreach ($imageCollection as $image) {
+            try {
+                $duplicateImage = $this->imageBuilder->create($image->getValue());
+                $originImage = $this->originFinder->getOriginImage($duplicateImage);
+
+                $this->imageResource->save(
+                    $image->setValue($originImage->getCatalogPath())
+                );
+
+                $removedImages[] = $duplicateImage;
+            } catch (\Exception $exception) {
+                $this->logger->error($exception->getMessage());
+            }
+        }
+
+        $output->writeln(
+            sprintf('Number of images successfully removed: %d', count($removedImages))
+        );
+
         return Cli::RETURN_SUCCESS;
     }
 }

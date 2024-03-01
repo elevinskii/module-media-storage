@@ -18,4 +18,14 @@ class Collection extends AbstractCollection
     {
         $this->_init(GalleryImage::class, GalleryImageResource::class);
     }
+
+    /**
+     * Set collection filter to retrieve only duplicates
+     *
+     * @return $this
+     */
+    public function addFilterByDuplicates(): self
+    {
+        return $this->addFieldToFilter('value', ['regexp' => '_\d+\.']);
+    }
 }
