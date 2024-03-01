@@ -6,10 +6,10 @@ namespace Elevinskii\MediaStorage\Model\Gallery;
 class ImageBuilder
 {
     /**
-     * @param ImageFactory $imageFactory
+     * @param ImageInterfaceFactory $imageFactory
      */
     public function __construct(
-        private readonly ImageFactory $imageFactory
+        private readonly ImageInterfaceFactory $imageFactory
     ) {
     }
 
@@ -17,9 +17,9 @@ class ImageBuilder
      * Create image model with specified path
      *
      * @param string $catalogPath
-     * @return Image
+     * @return ImageInterface
      */
-    public function create(string $catalogPath): Image
+    public function create(string $catalogPath): ImageInterface
     {
         return $this->imageFactory->create([
             'catalogPath' => $catalogPath

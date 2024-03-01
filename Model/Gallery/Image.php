@@ -9,7 +9,7 @@ use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem\Directory\ReadFactory as DirectoryReaderFactory;
 use Magento\Framework\Filesystem\Directory\ReadInterface as DirectoryReader;
 
-class Image
+class Image implements ImageInterface
 {
     /**
      * Algorithm for hash calculation
