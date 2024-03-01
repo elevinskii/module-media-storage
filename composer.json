@@ -3,5 +3,13 @@
     "description": "Set of commands to operate your Magento2 catalog media effectively",
     "require": {
         "php": "~8.1.0||~8.2.0"
+    },
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "Elevinskii\\MediaStorage\\": ""
+        }
     }
 }
