@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace Elevinskii\MediaStorage\Model\Gallery;
 
+use Elevinskii\MediaStorage\Model\Gallery\Image\PathInfo;
+use Elevinskii\MediaStorage\Model\Gallery\Image\PathInfoFactory;
 use Magento\Catalog\Model\Product\Media\ConfigInterface as MediaConfig;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
@@ -23,12 +25,14 @@ class Image implements ImageInterface
 
     /**
      * @param DirectoryReaderFactory $directoryReaderFactory
+     * @param PathInfoFactory $pathInfoFactory
      * @param DirectoryList $directoryList
      * @param MediaConfig $mediaConfig
      * @param string $catalogPath
      */
     public function __construct(
         private readonly DirectoryReaderFactory $directoryReaderFactory,
+        private readonly PathInfoFactory $pathInfoFactory,
         private readonly DirectoryList $directoryList,
         private readonly MediaConfig $mediaConfig,
         private readonly string $catalogPath
@@ -46,6 +50,20 @@ class Image implements ImageInterface
     }
 
     /**
+     * Retrieve information about the image path
+     *
+     * @return PathInfo
+     * @throws FileSystemException
+     */
+    public function getPathInfo(): PathInfo
+    {
+        $pathInfo = pathinfo($this->getAbsolutePath());
+
+        return $this->pathInfoFactory->create()
+            ->setData($pathInfo);
+    }
+
+    /**
      * Calculate hash for the image
      *
      * @return string
@@ -53,18 +71,29 @@ class Image implements ImageInterface
      */
     public function getHash(): string
     {
-        $absolutePath = $this->getDirectoryReader()->getAbsolutePath(
-            $this->getCatalogPath()
-        );
-
+        $absolutePath = $this->getAbsolutePath();
         $hash = @hash_file(self::HASH_ALGORITHM, $absolutePath);
+
         if ($hash === false) {
             throw new FileSystemException(
-                __('Cannot calculate hash for the image.')
+                __('Cannot calculate hash for the image by path %1', [$absolutePath])
             );
         }
 
         return $hash;
+    }
+
+    /**
+     * Retrieve absolute path to the image
+     *
+     * @return string
+     * @throws FileSystemException
+     */
+    private function getAbsolutePath(): string
+    {
+        return $this->getDirectoryReader()->getAbsolutePath(
+            $this->getCatalogPath()
+        );
     }
 
     /**
