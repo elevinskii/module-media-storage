@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Elevinskii\MediaStorage\Model\Gallery;
 
+use Elevinskii\MediaStorage\Model\Gallery\Image\HashCache;
 use Elevinskii\MediaStorage\Model\Gallery\Image\PathInfo;
 use Elevinskii\MediaStorage\Model\Gallery\Image\PathInfoFactory;
 use Magento\Catalog\Model\Product\Media\ConfigInterface as MediaConfig;
@@ -28,6 +29,7 @@ class Image implements ImageInterface
      * @param PathInfoFactory $pathInfoFactory
      * @param DirectoryList $directoryList
      * @param MediaConfig $mediaConfig
+     * @param HashCache $hashCache
      * @param string $catalogPath
      */
     public function __construct(
@@ -35,6 +37,7 @@ class Image implements ImageInterface
         private readonly PathInfoFactory $pathInfoFactory,
         private readonly DirectoryList $directoryList,
         private readonly MediaConfig $mediaConfig,
+        private readonly HashCache $hashCache,
         private readonly string $catalogPath
     ) {
     }
@@ -72,9 +75,14 @@ class Image implements ImageInterface
     public function getHash(): string
     {
         $absolutePath = $this->getAbsolutePath();
-        $hash = @hash_file(self::HASH_ALGORITHM, $absolutePath);
 
-        if ($hash === false) {
+        $hash = $this->hashCache->get($absolutePath);
+        if (!$hash) {
+            $hash = @hash_file(self::HASH_ALGORITHM, $absolutePath) ?: null;
+            $this->hashCache->set($absolutePath, $hash);
+        }
+
+        if (!$hash) {
             throw new FileSystemException(
                 __('Cannot calculate hash for the image by path %1', [$absolutePath])
             );
