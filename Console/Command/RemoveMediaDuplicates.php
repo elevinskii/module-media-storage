@@ -60,6 +60,7 @@ class RemoveMediaDuplicates extends Command
             ->addFilterByDuplicates();
 
         $removedImages = [];
+        $totalSize = 0;
 
         /** @var Image $image */
         foreach ($imageCollection as $image) {
@@ -72,13 +73,18 @@ class RemoveMediaDuplicates extends Command
                 );
 
                 $removedImages[] = $duplicateImage;
+                $totalSize += $duplicateImage->getFileSize();
             } catch (\Exception $exception) {
                 $this->logger->error($exception->getMessage());
             }
         }
 
         $output->writeln(
-            sprintf('Number of images successfully removed: %d', count($removedImages))
+            sprintf(
+                'Number of images successfully removed: %d with size of %.2f MB',
+                count($removedImages),
+                $totalSize / 1024 / 1024
+            )
         );
 
         return Cli::RETURN_SUCCESS;

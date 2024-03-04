@@ -24,6 +24,14 @@ interface ImageInterface
     public function getPathInfo(): PathInfo;
 
     /**
+     * Retrieve image size
+     *
+     * @return int
+     * @throws FileSystemException
+     */
+    public function getFileSize(): int;
+
+    /**
      * Calculate hash for the image
      *
      * @return string

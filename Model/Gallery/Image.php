@@ -67,6 +67,26 @@ class Image implements ImageInterface
     }
 
     /**
+     * Retrieve image size
+     *
+     * @return int
+     * @throws FileSystemException
+     */
+    public function getFileSize(): int
+    {
+        $absolutePath = $this->getAbsolutePath();
+
+        $fileSize = @filesize($absolutePath);
+        if (!$fileSize) {
+            throw new FileSystemException(
+                __('Cannot define filesize for the image by path %1', [$absolutePath])
+            );
+        }
+
+        return $fileSize;
+    }
+
+    /**
      * Calculate hash for the image
      *
      * @return string
