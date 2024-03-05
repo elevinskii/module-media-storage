@@ -60,6 +60,7 @@ class Image implements ImageInterface
      */
     public function getPathInfo(): PathInfo
     {
+        // phpcs:ignore
         $pathInfo = pathinfo($this->getAbsolutePath());
 
         return $this->pathInfoFactory->create()
@@ -76,6 +77,7 @@ class Image implements ImageInterface
     {
         $absolutePath = $this->getAbsolutePath();
 
+        // phpcs:ignore
         $fileSize = @filesize($absolutePath);
         if (!$fileSize) {
             throw new FileSystemException(
@@ -98,6 +100,7 @@ class Image implements ImageInterface
 
         $hash = $this->hashCache->get($absolutePath);
         if (!$hash) {
+            // phpcs:ignore
             $hash = @hash_file(self::HASH_ALGORITHM, $absolutePath) ?: null;
             $this->hashCache->set($absolutePath, $hash);
         }
