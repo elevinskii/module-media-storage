@@ -13,6 +13,10 @@ original path.
 
 That's easy - `bin/magento catalog:images:remove-duplicates`
 
+Possible options:
+
+- `--dry-run` - performs dry running without any operations with database 
+
 **Warning**
 
 Please create dumps of below listed tables, for being able to revert changes if something goes wrong.

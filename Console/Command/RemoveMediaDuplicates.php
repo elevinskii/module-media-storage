@@ -12,10 +12,16 @@ use Magento\Framework\Console\Cli;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class RemoveMediaDuplicates extends Command
 {
+    /**
+     * List of available options
+     */
+    private const OPTION_DRY_RUN = 'dry-run';
+
     /**
      * @param OriginFinder $originFinder
      * @param ImageBuilder $imageBuilder
@@ -44,6 +50,13 @@ class RemoveMediaDuplicates extends Command
             ->setName('catalog:images:remove-duplicates')
             ->setDescription('Searches for media duplicates in database and removes them');
 
+        $this->addOption(
+            self::OPTION_DRY_RUN,
+            null,
+            InputOption::VALUE_NONE,
+            'Performs dry running without any operations with database'
+        );
+
         parent::configure();
     }
 
@@ -68,15 +81,23 @@ class RemoveMediaDuplicates extends Command
                 $duplicateImage = $this->imageBuilder->create($image->getValue());
                 $originImage = $this->originFinder->getOriginImage($duplicateImage);
 
-                $this->imageResource->save(
-                    $image->setValue($originImage->getCatalogPath())
-                );
+                if (!$this->isDryRun($input)) {
+                    $this->imageResource->save(
+                        $image->setValue($originImage->getCatalogPath())
+                    );
+                }
 
                 $removedImages[] = $duplicateImage;
                 $totalSize += $duplicateImage->getFileSize();
             } catch (\Exception $exception) {
                 $this->logger->error($exception->getMessage());
             }
+        }
+
+        if ($this->isDryRun($input)) {
+            $output->writeln(
+                '<comment>Dry mode enabled, no database operations performed</comment>'
+            );
         }
 
         $output->writeln(
@@ -88,5 +109,16 @@ class RemoveMediaDuplicates extends Command
         );
 
         return Cli::RETURN_SUCCESS;
+    }
+
+    /**
+     * If the command executes in dry run mode
+     *
+     * @param InputInterface $input
+     * @return bool
+     */
+    private function isDryRun(InputInterface $input): bool
+    {
+        return $input->getOption(self::OPTION_DRY_RUN);
     }
 }
