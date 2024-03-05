@@ -1,0 +1,10 @@
+name: Static Tests
+on: [push]
+
+jobs:
+  coding-standards:
+    name: Coding Standards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: extdn/github-actions-m2/magento-coding-standard/8.1@master

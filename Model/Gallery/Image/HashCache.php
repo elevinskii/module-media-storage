@@ -24,6 +24,8 @@ class HashCache
     /**
      * Set file hash by path
      *
+     * @param string $path
+     * @param string|null $hash
      * @return $this
      */
     public function set(string $path, ?string $hash): self
