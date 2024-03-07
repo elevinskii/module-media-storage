@@ -81,14 +81,16 @@ class RemoveMediaDuplicates extends Command
                 $duplicateImage = $this->imageBuilder->create($image->getValue());
                 $originImage = $this->originFinder->getOriginImage($duplicateImage);
 
-                if (!$this->isDryRun($input)) {
-                    $this->imageResource->save(
-                        $image->setValue($originImage->getCatalogPath())
-                    );
-                }
+                if ($originImage) {
+                    if (!$this->isDryRun($input)) {
+                        $this->imageResource->save(
+                            $image->setValue($originImage->getCatalogPath())
+                        );
+                    }
 
-                $removedImages[] = $duplicateImage;
-                $totalSize += $duplicateImage->getFileSize();
+                    $removedImages[] = $duplicateImage;
+                    $totalSize += $duplicateImage->getFileSize();
+                }
             } catch (\Exception $exception) {
                 $this->logger->error($exception->getMessage());
             }

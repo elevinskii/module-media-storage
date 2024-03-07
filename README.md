@@ -1,3 +1,7 @@
+[![Latest Stable Version](http://poser.pugx.org/elevinskii/module-media-storage/v)](https://packagist.org/packages/elevinskii/module-media-storage)
+[![Total Downloads](http://poser.pugx.org/elevinskii/module-media-storage/downloads)](https://packagist.org/packages/elevinskii/module-media-storage)
+[![PHP Version Require](http://poser.pugx.org/elevinskii/module-media-storage/require/php)](https://packagist.org/packages/elevinskii/module-media-storage)
+
 ### What's the problem?
 
 That sometimes might be a case when your Magento content managers use the same images with assigning them to
